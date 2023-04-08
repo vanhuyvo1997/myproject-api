@@ -16,4 +16,9 @@ public record AuthenticationController(TokenService tokenService) {
 	public ResponseEntity<?> authenicate(@RequestBody UserRequest request){
 		return ResponseEntity.ok(tokenService.authenticateThenGenerateTokens(request));
 	}
+	
+	@PostMapping("refresh")
+	public ResponseEntity<?> refreshToken(@RequestBody String refreshToken){
+		return ResponseEntity.ok(tokenService.refreshAccessToken(refreshToken));
+	}
 }
