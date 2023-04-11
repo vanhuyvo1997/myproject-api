@@ -9,6 +9,7 @@ import java.util.Map;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.myprojectapi.entity.User;
+import static com.myprojectapi.util.TermsUtil.*;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -58,15 +59,15 @@ public class TokenUtil {
 	
 	public static Map<String, Object> generateAccessTokenClaims(User user) {
 		Map<String, Object> claims = new HashMap<>();
-		claims.put("role", user.getRole());
-		claims.put("id", user.getId());
-		claims.put("type", "access");
+		claims.put(ROLE, user.getRole());
+		claims.put(ID, user.getId());
+		claims.put(TYPE, ACCESS);
 		return claims;
 	}
 	
 	public static Map<String, Object> generateRefreshTokenClaims(User user) {
 		Map<String, Object> claims = new HashMap<>();
-		claims.put("type", "refresh");
+		claims.put(TYPE, REFRESH);
 		return claims;
 	}
 
@@ -74,5 +75,21 @@ public class TokenUtil {
 		Date expDate = extractExperation(token);
 		return extractSubject(token).equals(user.getUsername()) 
 				&& expDate.after(Date.from(Instant.now()));
+	}
+	
+	public static boolean isAccessToken(String token) {
+		return extractType(token).equals(ACCESS);
+	}
+	
+	public static boolean isRefreshToken(String token) {
+		return extractType(token).equals(REFRESH);
+	}
+	
+	private static String extractType(String token) {
+		return extractClaimByKey(token, TYPE, String.class);
+	}
+	
+	private static <T> T extractClaimByKey(String token, String key, Class<T> clazz) {
+		return extractClaims(token).get(key, clazz);
 	}
 }
