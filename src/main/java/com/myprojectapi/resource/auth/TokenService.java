@@ -29,13 +29,17 @@ public record TokenService(
 		Map<String, Object> accessTokenClaims = TokenUtil.generateAccessTokenClaims(user);
 		String accessToken = TokenUtil.generateToken(user.getUsername(), accessTokenClaims, expDate);
 
-		Date refreshTokenExpDate = Date.from(Instant.now().plusSeconds(60 * 1));
+		Date refreshTokenExpDate = Date.from(Instant.now().plusSeconds(60 * 60));
 		Map<String, Object> refreshClaims = TokenUtil.generateRefreshTokenClaims(user);
 		String refreshToken = TokenUtil.generateToken(user.getUsername(), refreshClaims, refreshTokenExpDate);
 		return new TokenDTO(accessToken, refreshToken);
 	}
 
 	public TokenDTO refreshAccessToken(String refreshToken) {
+		if(!TokenUtil.isRefreshToken(refreshToken)) {
+			throw new InvalidTokenException("not a refresh token");
+		}
+		
 		String username = TokenUtil.extractSubject(refreshToken);
 		var user = (User) userDetailsService.loadUserByUsername(username);
 		Date expDate = Date.from(Instant.now().plusSeconds(60 * 30));
