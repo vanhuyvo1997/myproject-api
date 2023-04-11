@@ -1,8 +1,8 @@
 package com.myprojectapi.resource.user;
 
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,16 +12,10 @@ import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-public class UserService implements UserDetailsService {
+public class UserService {
 
 	private final UserRepository userRepo;
 	private final PasswordEncoder passwordEncoder;
-
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		return userRepo.findByUsername(username)
-				.orElseThrow(() -> new UsernameNotFoundException("not found user name: " + username));
-	}
 
 	public UserDTO createNew(UserRequest request) {
 		var isExisted = userRepo.findByUsername(request.username()).isPresent();
@@ -34,5 +28,9 @@ public class UserService implements UserDetailsService {
 
 			return UserDTO.form(userRepo.save(user));
 		}
+	}
+
+	public List<UserDTO> getAll() {
+		return userRepo.findAll().stream().map(UserDTO::form).collect(Collectors.toList());
 	}
 }

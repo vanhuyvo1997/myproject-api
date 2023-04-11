@@ -4,21 +4,26 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.myprojectapi.entity.User;
-import com.myprojectapi.resource.user.UserRequest;
-import com.myprojectapi.resource.user.UserService;
 
 @Service
-public record TokenService(UserService userService, PasswordEncoder passwordEncoder) {
+public record TokenService(
+		UserDetailsService userDetailsService,
+		PasswordEncoder passwordEncoder,
+		AuthenticationManager authenticationManager) {
 
-	public TokenDTO authenticateThenGenerateTokens(UserRequest request) {
-		User user = (User) userService.loadUserByUsername(request.username());
-		if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-			throw new IncorrectPasswordException("incorrect password");
-		}
+	public TokenDTO authenticateThenGenerateTokens(AuthenticateRequest request) {
+		authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(request.username(), request.password())
+				);
+		
+		User user = (User) userDetailsService.loadUserByUsername(request.username());
 
 		Date expDate = Date.from(Instant.now().plusSeconds(60 * 30));
 		Map<String, Object> accessTokenClaims = TokenUtil.generateAccessTokenClaims(user);
@@ -32,7 +37,7 @@ public record TokenService(UserService userService, PasswordEncoder passwordEnco
 
 	public TokenDTO refreshAccessToken(String refreshToken) {
 		String username = TokenUtil.extractSubject(refreshToken);
-		var user = (User) userService.loadUserByUsername(username);
+		var user = (User) userDetailsService.loadUserByUsername(username);
 		Date expDate = Date.from(Instant.now().plusSeconds(60 * 30));
 		Map<String, Object> accessClaims = TokenUtil.generateAccessTokenClaims(user);
 		String accessToken = TokenUtil.generateToken(user.getUsername(), accessClaims, expDate);

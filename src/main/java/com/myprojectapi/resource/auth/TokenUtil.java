@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.security.core.userdetails.UserDetails;
+
 import com.myprojectapi.entity.User;
 
 import io.jsonwebtoken.Claims;
@@ -66,5 +68,11 @@ public class TokenUtil {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("type", "refresh");
 		return claims;
+	}
+
+	public static boolean isValid(String token, UserDetails user) {
+		Date expDate = extractExperation(token);
+		return extractSubject(token).equals(user.getUsername()) 
+				&& expDate.after(Date.from(Instant.now()));
 	}
 }
