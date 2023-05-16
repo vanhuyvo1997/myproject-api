@@ -16,6 +16,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder.BCryptVe
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.myprojectapi.entity.User.Role;
 import com.myprojectapi.filter.JwtTokenFilter;
@@ -42,12 +44,17 @@ public class MyProjectConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests(request ->{
 			request
-				.requestMatchers("api/auth/**", "api/auth")
-					.permitAll()
-				.requestMatchers("api/user", "api/user/**").hasRole(Role.USER.name());
+			.requestMatchers("/api/auth/**").permitAll()
+			.requestMatchers("/api/projects/**").hasRole(Role.USER.name())
+			.requestMatchers("/api/user/**").hasRole(Role.ADMIN.name())
+			.anyRequest()
+			.authenticated();			
 		});
-//		http.authorizeHttpRequests().anyRequest().permitAll();
-		http.csrf()
+		
+		http
+		.cors()
+		.and()
+		.csrf()
 			.disable()
 			.sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -78,5 +85,16 @@ public class MyProjectConfig {
 	public UserDetailsService userDetailsService() {
 		return (username)->userRepo.findByUsername(username)
 				.orElseThrow(() -> new UsernameNotFoundException("not found user name: " + username));
+	}
+	
+	@Bean
+	public WebMvcConfigurer corsConfigurer() {
+		return new WebMvcConfigurer() {
+
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				registry.addMapping("/**").allowedOrigins("http://localhost:3000");
+			}
+		};
 	}
 }
