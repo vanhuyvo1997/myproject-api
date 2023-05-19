@@ -31,7 +31,7 @@ public class Project {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false, unique = true, length = 250)
+	@Column(nullable = false, unique = false, length = 250)
 	private String name;
 	
 	private LocalDateTime startedAt;
