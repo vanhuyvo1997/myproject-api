@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.myprojectapi.entity.Project;
 import com.myprojectapi.entity.ProjectStatus;
 import com.myprojectapi.entity.User;
+import com.myprojectapi.resource.project.exceptions.ProjectAlreadyExistedException;
 import com.myprojectapi.util.PageResponse;
 
 import lombok.AllArgsConstructor;
@@ -23,6 +24,10 @@ public class ProjectService {
 
 	public ProjectDTO create(ProjectRequest rq) {
 		var owner = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if(projRepo.findByNameAndOwner(rq.name(), owner).isPresent()) {
+			throw new ProjectAlreadyExistedException(rq.name() + " already exist");
+		};
+		
 		Project p = Project.builder()
 				.name(rq.name())
 				.owner(owner)
@@ -35,10 +40,11 @@ public class ProjectService {
 	}
 
 	public PageResponse<ProjectDTO> getPage(int pageNum, int size, boolean isDescending, String ...sortProperties) {
+		var owner = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Sort sort = Sort.by(sortProperties);
 		if(isDescending) sort = sort.descending();
 		Pageable page = PageRequest.of(pageNum, size, sort);
-		var currentPage = projRepo.findAll(page);
+		var currentPage = projRepo.findByOwner(owner, page);
 		return new PageResponse<>(
 				currentPage.getTotalPages(),
 				currentPage.getNumber(),
