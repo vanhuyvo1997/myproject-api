@@ -39,12 +39,12 @@ public class ProjectService {
 		return ProjectDTO.from(p);
 	}
 
-	public PageResponse<ProjectDTO> getPage(int pageNum, int size, boolean isDescending, String ...sortProperties) {
+	public PageResponse<ProjectDTO> getPage(int pageNum, int size, boolean isDescending, String term, String ...sortProperties) {
 		var owner = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Sort sort = Sort.by(sortProperties);
 		if(isDescending) sort = sort.descending();
 		Pageable page = PageRequest.of(pageNum, size, sort);
-		var currentPage = projRepo.findByOwner(owner, page);
+		var currentPage = projRepo.findByOwnerAndNameIgnoreCaseContaining(owner, term, page);
 		return new PageResponse<>(
 				currentPage.getTotalPages(),
 				currentPage.getNumber(),
