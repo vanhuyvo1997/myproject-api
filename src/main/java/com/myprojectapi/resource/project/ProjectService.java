@@ -12,6 +12,7 @@ import com.myprojectapi.entity.Project;
 import com.myprojectapi.entity.ProjectStatus;
 import com.myprojectapi.entity.User;
 import com.myprojectapi.resource.project.exceptions.ProjectAlreadyExistedException;
+import com.myprojectapi.resource.project.exceptions.ProjectNotFountException;
 import com.myprojectapi.util.PageResponse;
 
 import lombok.AllArgsConstructor;
@@ -44,11 +45,22 @@ public class ProjectService {
 		Sort sort = Sort.by(sortProperties);
 		if(isDescending) sort = sort.descending();
 		Pageable page = PageRequest.of(pageNum, size, sort);
-		var currentPage = projRepo.findByOwnerAndNameIgnoreCaseContaining(owner, term, page);
+		var currentPage = projRepo.findByOwnerAndNameIgnoreCaseContainingAndDeletedIsFalse(owner, term, page);
 		return new PageResponse<>(
 				currentPage.getTotalPages(),
 				currentPage.getNumber(),
 				currentPage.getContent().stream().map(ProjectDTO::from).toList());
 	}
 
+	public void delete(Long id) {
+		var owner = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		var project = projRepo.findById(id).orElseThrow(()->new ProjectNotFountException("project id=" + id + " Not found"));
+		if(project.isDeleted() || !owner.equals(project.getOwner())) {
+			throw new ProjectNotFountException("project id=" + id + " Not found");
+		} else {
+			project.setDeleted(true);
+			projRepo.save(project);
+		}
+	}
+	
 }

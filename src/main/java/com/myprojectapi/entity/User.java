@@ -19,26 +19,32 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
 @AllArgsConstructor
+@Getter
+@Setter
 @Builder
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User implements UserDetails {
 
 	private static final long serialVersionUID = -3508966227198593230L;
 
 	@Id
 	@GeneratedValue
+	@EqualsAndHashCode.Include
 	private Long id;
 	
 	@Column(nullable = false)
 	private String name;
 
 	@Column(nullable = false, unique = true)
+	@EqualsAndHashCode.Include
 	private String username;
 
 	@Column(nullable = false)
