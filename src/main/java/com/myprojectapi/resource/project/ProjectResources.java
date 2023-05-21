@@ -28,7 +28,8 @@ public class ProjectResources {
 			@RequestParam("pageNum") int pageNum,
 			@RequestParam("size") int size,
 			@RequestParam("desc") boolean isDescending,
+			@RequestParam("term") String term,
 			@RequestParam("sortBy") String ...sortBy){
-		return ResponseEntity.ok(projectService.getPage(pageNum, size, isDescending, sortBy));
+		return ResponseEntity.ok(projectService.getPage(pageNum, size, isDescending, term, sortBy));
 	}
 }

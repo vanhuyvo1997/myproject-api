@@ -13,6 +13,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
 	Optional<Project> findByNameAndOwner(String name, User owner);
 
-	Page<Project> findByOwner(User owner,Pageable page);
+	Page<Project> findByOwnerAndNameIgnoreCaseContaining(User owner, String term, Pageable page);
 
 }
