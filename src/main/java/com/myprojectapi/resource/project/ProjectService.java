@@ -25,7 +25,7 @@ public class ProjectService {
 
 	public ProjectDTO create(ProjectRequest rq) {
 		var owner = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if(projRepo.findByNameAndOwner(rq.name(), owner).isPresent()) {
+		if(projRepo.findByNameAndOwnerAndDeletedIsFalse(rq.name(), owner).isPresent()) {
 			throw new ProjectAlreadyExistedException(rq.name() + " already exist");
 		};
 		

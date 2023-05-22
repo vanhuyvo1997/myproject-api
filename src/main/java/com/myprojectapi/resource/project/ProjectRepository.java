@@ -11,7 +11,7 @@ import com.myprojectapi.entity.User;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
-	Optional<Project> findByNameAndOwner(String name, User owner);
+	Optional<Project> findByNameAndOwnerAndDeletedIsFalse(String name, User owner);
 
 	Page<Project> findByOwnerAndNameIgnoreCaseContainingAndDeletedIsFalse(User owner, String term, Pageable page);
 
