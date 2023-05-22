@@ -12,6 +12,7 @@ import com.myprojectapi.entity.Project;
 import com.myprojectapi.entity.ProjectStatus;
 import com.myprojectapi.entity.User;
 import com.myprojectapi.resource.project.exceptions.ProjectAlreadyExistedException;
+import com.myprojectapi.resource.project.exceptions.ProjectNameConflictException;
 import com.myprojectapi.resource.project.exceptions.ProjectNotFountException;
 import com.myprojectapi.util.PageResponse;
 
@@ -59,6 +60,19 @@ public class ProjectService {
 			throw new ProjectNotFountException("project id=" + id + " Not found");
 		} else {
 			project.setDeleted(true);
+			projRepo.save(project);
+		}
+	}
+
+	public void updateName(Long id, String newName) {
+		var owner = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if(projRepo.findByNameAndOwnerAndDeletedIsFalse(newName, owner).isPresent()) {
+			throw new ProjectNameConflictException(newName + " is already in use");
+		}
+		
+		var project = projRepo.findByIdAndOwnerAndDeletedIsFalse(id, owner).orElseThrow(()->new ProjectNotFountException("project id=" + id + " Not found"));
+		if(!newName.equals(project.getName())) {
+			project.setName(newName);
 			projRepo.save(project);
 		}
 	}

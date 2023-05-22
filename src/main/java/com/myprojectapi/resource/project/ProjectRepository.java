@@ -15,4 +15,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
 	Page<Project> findByOwnerAndNameIgnoreCaseContainingAndDeletedIsFalse(User owner, String term, Pageable page);
 
+	Optional<Project> findByIdAndOwnerAndDeletedIsFalse(Long id, User owner);
+
 }

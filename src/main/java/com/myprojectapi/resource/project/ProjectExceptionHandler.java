@@ -6,12 +6,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.myprojectapi.resource.project.exceptions.ProjectAlreadyExistedException;
+import com.myprojectapi.resource.project.exceptions.ProjectNameConflictException;
 import com.myprojectapi.resource.project.exceptions.ProjectNotFountException;
 
 @RestControllerAdvice
 public class ProjectExceptionHandler {
 
-	@ExceptionHandler(ProjectAlreadyExistedException.class)
+	@ExceptionHandler({ ProjectAlreadyExistedException.class, ProjectNameConflictException.class })
 	public ResponseEntity<?> handleProjectAlreadyExistedException(Exception e) {
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 	}
