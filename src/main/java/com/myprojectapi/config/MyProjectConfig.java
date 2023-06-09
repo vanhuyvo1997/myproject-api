@@ -45,8 +45,8 @@ public class MyProjectConfig {
 		http.authorizeHttpRequests(request ->{
 			request
 			.requestMatchers("/api/auth/**").permitAll()
-			.requestMatchers("/api/projects/**").hasRole(Role.USER.name())
 			.requestMatchers("/api/user/**").hasRole(Role.ADMIN.name())
+			.requestMatchers("/api/**").hasRole(Role.USER.name())
 			.anyRequest()
 			.authenticated();			
 		});
