@@ -16,41 +16,41 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Project {
-
+public class Task {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@EqualsAndHashCode.Include
 	private Long id;
 
-	@Column(nullable = false, unique = false, length = 250)
-	private String name;
+	@Column(nullable = false)
+	private String title;
+
+	private String description;
+	
+	@Enumerated(EnumType.STRING)
+	@Builder.Default
+	private TaskStatus status = TaskStatus.NEW;
+
+	@Builder.Default
+	private LocalDateTime createdAt = LocalDateTime.now();
 
 	private LocalDateTime startedAt;
 
-	@Enumerated(EnumType.STRING)
-	private ProjectStatus status;
-
+	private LocalDateTime finishedAt;
+	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "owner_id")
-	private User owner;
-
-	@Column(columnDefinition = "boolean default false")
-	private boolean deleted;
-
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "belongProject", orphanRemoval = true)
-	private List<Task> tasks;
-
+	@JoinColumn(name = "project_id")
+	private Project belongProject;
+	
+	@OneToMany(mappedBy = "belongTask", orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<Subtask> subtasks;
 }
