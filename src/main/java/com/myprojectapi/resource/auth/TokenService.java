@@ -29,7 +29,7 @@ public record TokenService(
 		Map<String, Object> accessTokenClaims = TokenUtil.generateAccessTokenClaims(user);
 		String accessToken = TokenUtil.generateToken(user.getUsername(), accessTokenClaims, expDate);
 
-		Date refreshTokenExpDate = Date.from(Instant.now().plusSeconds(60 * 60));
+		Date refreshTokenExpDate = Date.from(Instant.now().plusSeconds(60 * 60 * 24 * 7));
 		Map<String, Object> refreshClaims = TokenUtil.generateRefreshTokenClaims(user);
 		String refreshToken = TokenUtil.generateToken(user.getUsername(), refreshClaims, refreshTokenExpDate);
 		return new TokenDTO(accessToken, refreshToken);
