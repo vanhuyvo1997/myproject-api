@@ -1,5 +1,7 @@
 package com.myprojectapi.resource.task;
 
+import java.util.Objects;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -12,6 +14,7 @@ import com.myprojectapi.entity.User;
 import com.myprojectapi.resource.project.ProjectRepository;
 import com.myprojectapi.resource.project.exceptions.ProjectNotFountException;
 import com.myprojectapi.resource.subtask.SubtaskRepository;
+import com.myprojectapi.resource.task.exception.IllegalTaskException;
 import com.myprojectapi.resource.task.exception.TaskNotFoundException;
 import com.myprojectapi.resource.task.exception.TaskTitleAlreadyExistedException;
 import com.myprojectapi.util.PageResponse;
@@ -28,6 +31,16 @@ public record TaskService(TaskRepository taskRepo, ProjectRepository projRepo, S
 					"project id " + project.getId() + " is not belong to user id" + owner.getId());
 		}
 		return project;
+	}
+
+	private Task validateTask(Long projId, Long taskId) {
+		var task = taskRepo.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Not found task " + taskId));
+		var owner = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		var project = task.getBelongProject();
+		if (!project.getId().equals(projId) || !project.getOwner().equals(owner)) {
+			throw new ProjectNotFountException("Not found project " + projId);
+		}
+		return task;
 	}
 
 	public TaskDTO create(Long projectId, TaskRequest rs) {
@@ -61,6 +74,30 @@ public record TaskService(TaskRepository taskRepo, ProjectRepository projRepo, S
 			throw new TaskNotFoundException("Not found task id = " + taskId + " in project id = " + projectId);
 		}
 		taskRepo.delete(task);
+	}
+
+	public TaskDTO getById(Long projId, Long taskId) {
+		var task = validateTask(projId, taskId);
+		return TaskDTO.from(task, subtaskRepo.countByBelongTask(task));
+	}
+
+	public void update(Long projectId, Long taskId, TaskRequest request) {
+		
+		if(Objects.isNull(request.title()) || request.title().isBlank()) {
+			throw new IllegalTaskException("Title must be not null");
+		}
+		
+		var task = validateTask(projectId, taskId);
+		
+		
+		if (!task.getTitle().equals(request.title())) {
+			task.setTitle(request.title());
+		}
+		if (!task.getDescription().equals(request.description())) {
+			task.setDescription(request.description());
+		}
+		taskRepo.save(task);
+
 	}
 
 }
