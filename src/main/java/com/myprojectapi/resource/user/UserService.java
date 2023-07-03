@@ -3,6 +3,7 @@ package com.myprojectapi.resource.user;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,5 +33,10 @@ public class UserService {
 
 	public List<UserDTO> getAll() {
 		return userRepo.findAll().stream().map(UserDTO::form).collect(Collectors.toList());
+	}
+
+	public UserDTO getById(Long id) {
+		var user = userRepo.findById(id).orElseThrow(()-> new UsernameNotFoundException("Not found user id: " + id));
+		return UserDTO.form(user);
 	}
 }

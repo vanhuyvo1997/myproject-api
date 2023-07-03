@@ -2,10 +2,12 @@ package com.myprojectapi.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -29,6 +31,7 @@ import lombok.AllArgsConstructor;
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
+@EnableMethodSecurity
 public class MyProjectConfig {
 	
 	
@@ -45,7 +48,9 @@ public class MyProjectConfig {
 		http.authorizeHttpRequests(request ->{
 			request
 			.requestMatchers("/api/auth/**").permitAll()
-			.requestMatchers("/api/user/**").hasRole(Role.ADMIN.name())
+			.requestMatchers(HttpMethod.GET, "/api/users/*")
+				.hasAnyRole(Role.ADMIN.name(), Role.USER.name())
+			.requestMatchers("/api/users/**").hasRole(Role.ADMIN.name())
 			.requestMatchers("/api/**").hasRole(Role.USER.name())
 			.anyRequest()
 			.authenticated();			
