@@ -23,8 +23,8 @@ LocalDateTime finishedAt)
 				.status(subtask.getStatus())
 				.createdAt(subtask.getCreatedAt())
 				.startedAt(subtask.getStartedAt())
-				.stoppedAt(subtask.getStartedAt())
-				.finishedAt(subtask.getStartedAt())
+				.stoppedAt(subtask.getStoppedAt())
+				.finishedAt(subtask.getFinishedAt())
 				.build();
 	}
 }

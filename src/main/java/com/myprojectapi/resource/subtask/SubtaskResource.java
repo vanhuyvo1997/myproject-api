@@ -2,6 +2,7 @@ package com.myprojectapi.resource.subtask;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,5 +32,19 @@ public record SubtaskResource(SubtaskService subtaskService) {
 		subtaskService.changeStatus(projectId, taskId, subtaskId, rs.status());
 		return ResponseEntity.noContent().build();
 	}
+	
+	@PatchMapping("{subtaskId}/title")
+	public ResponseEntity<?> patchTitle(@PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId,
+			@PathVariable("subtaskId") Long subtaskId, @RequestBody SubtaskRequest rs) {
+		subtaskService.changeTitle(projectId, taskId, subtaskId, rs.title());
+		return ResponseEntity.noContent().build();
+	}
 
+	@DeleteMapping("{subtaskId}")
+	public ResponseEntity<?> delete(@PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId,
+			@PathVariable("subtaskId") Long subtaskId){
+		subtaskService.delete(projectId, taskId, subtaskId);
+		return ResponseEntity.accepted().build();
+	}
+	
 }
